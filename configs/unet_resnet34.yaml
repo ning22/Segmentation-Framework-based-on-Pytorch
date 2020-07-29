@@ -1,0 +1,35 @@
+dumps:
+    path: ./dumps
+    weights: weights
+    logs: logs
+
+epochs: &epochs 40
+batch_size: &batch_size 6
+num_workers: &num_workers 2
+
+train_params:
+    gpu_id: 0
+    num_workers: *num_workers
+    batch_size: *batch_size  
+    num_epochs: *epochs
+    num_folds: 4
+    fold: 0
+    lr: 1e-3
+
+data_params:
+    data_folder: /home/nzhao/Documents/PJ_Pelvis/main/data/hiatus
+    batch_size: *batch_size 
+    num_workers: *num_workers
+
+
+# stages:
+#     cosine:
+#         optimizer: Adam
+#         optimizer_params:
+#             lr: 0.000075
+#             weight_decay: 0.00001
+#         scheduler: CosineAnnealingLR
+#         scheduler_params:
+#             T_max: 8
+#             eta_min: 0.000001
+#         epochs: *epochs
