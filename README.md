@@ -1,1 +1,1 @@
-# PelvicSegmentation
+# Segmentation platform
