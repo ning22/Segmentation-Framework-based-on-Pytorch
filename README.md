@@ -1,1 +1,1 @@
-# Segmentation platform
+# Segmentation framework based on Pytorch
