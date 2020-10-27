@@ -1,3 +1,7 @@
+"""
+Author: Ningning Zhao
+Email: buaazhaonn@gmail.com
+"""
 import argparse
 import torch, os
 from pathlib import Path
@@ -64,7 +68,7 @@ def main():
         plt.plot(range(len(scores["train"])), scores["val"], label=f'val {name}')
         plt.title(f'{name} plot'); plt.xlabel('Epoch'); plt.ylabel(f'{name}')
         plt.legend()
-        # plt.show()
+
         if is_save:
             plt.savefig(os.path.join(log_save_dir, name+'.png'))
 
