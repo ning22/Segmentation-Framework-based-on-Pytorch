@@ -1,3 +1,7 @@
+"""
+Ningning Zhao
+buaazhaonn@gmail.com
+"""
 import pandas as pd 
 import numpy as np 
 import os
@@ -23,12 +27,12 @@ def read_xlsx(network, filename):
 
 
 if __name__ == "__main__":
-    output_path = '/home/nzhao/Documents/PJ_Pelvis/main/output/hiatus'
-    for netname in ['unet_resnet34', 'segnet', 'hrnet']:
-        netname = f'{netname}'
-        output_dir = os.path.join(output_path, netname)
-        xlsx_filename = os.path.join(output_dir, 'split.xlsx')
-        read_xlsx(netname, xlsx_filename)
+    output_path = 'location of output'
+
+    netname = f'{netname}'
+    output_dir = os.path.join(output_path, netname)
+    xlsx_filename = os.path.join(output_dir, 'split.xlsx')
+    read_xlsx(netname, xlsx_filename)
 
 
 
