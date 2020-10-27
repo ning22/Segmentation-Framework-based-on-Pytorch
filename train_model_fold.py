@@ -1,12 +1,14 @@
+"""
+Author: Ningning Zhao
+Email: buaazhaonn@gmail.com
+"""
 import argparse
 from pathlib import Path
 from pprint import pprint
 import torch, os
 from matplotlib import pyplot as plt 
 
-# import src.segmentation_models_pytorch as smp
-# from src.models.seg_hrnet import get_hrseg_model
-from src.loaders.hiatus_dataset import make_data_fold
+from src.loaders.dataset import make_data_fold
 from src.utils import get_config, set_global_seeds
 from src.callbacks import create_callbacks 
 from src.trainer import Trainer
@@ -34,59 +36,44 @@ def get_model(model_name, config):
 
 def main():
     args = parse_args()  
-    # args.netname = 'unet_restnet34'
-    # args.config_dir = '/home/nzhao/Documents/PJ_Pelvis/main/configs/unet_resnet34.yaml'
-    # args.netname = 'segnet'
-    # args.config_dir = '/home/nzhao/Documents/PJ_Pelvis/main/configs/segnet.yaml'
-    # args.netname = 'hrnet'
-    # args.config_dir = '/home/nzhao/Documents/PJ_Pelvis/main/configs/seg_hrnet.yaml'
+    config = get_config(args.config_dir)
+    set_global_seeds(456)
 
-    for args.netname in ['segnet', 'hrnet']:
-        if args.netname == 'segnet':
-            args.config_dir = '/home/nzhao/Documents/PJ_Pelvis/main/configs/segnet.yaml'
-        elif args.netname == 'hrnet':
-            args.config_dir = '/home/nzhao/Documents/PJ_Pelvis/main/configs/seg_hrnet.yaml'
+    for fold in range(4):
+        config['train_params']['fold'] = fold
+        netname = f'{args.netname}/fold{fold}'
+        log_save_dir = Path(config['dumps']['path']) / config['dumps']['logs'] / netname 
+        model_save_dir = Path(config['dumps']['path']) / config['dumps']['weights'] / netname 
+        os.makedirs(log_save_dir, exist_ok=True)
+        os.makedirs(model_save_dir, exist_ok=True)
+        config['train_params']['netname'] = netname
+        config['train_params']['model_path'] = model_save_dir
+        pprint(config) 
 
-        config = get_config(args.config_dir)
-        set_global_seeds(456)
+        data_loaders = make_data_fold(**config['data_params'], fold=config['train_params']['fold']) 
+        model = get_model(args.netname, config)
+        callbacks = create_callbacks(netname, config['dumps'])
+        model_trainer = Trainer(model, callbacks, data_loaders, **config['train_params'])
+        model_trainer.start()
 
-        for fold in range(4):
-            config['train_params']['fold'] = fold
-            netname = f'{args.netname}/fold{fold}'
-            log_save_dir = Path(config['dumps']['path']) / config['dumps']['logs'] / netname 
-            model_save_dir = Path(config['dumps']['path']) / config['dumps']['weights'] / netname 
-            os.makedirs(log_save_dir, exist_ok=True)
-            os.makedirs(model_save_dir, exist_ok=True)
-            config['train_params']['netname'] = netname
-            config['train_params']['model_path'] = model_save_dir
-            pprint(config) 
-            # if os.path.isfile(os.path.join(model_save_dir, 'model.pth')):
-            #     config['MODEL']['PRETRAINED'] = os.path.join(model_save_dir, 'model.pth')
-            
-            data_loaders = make_data_fold(**config['data_params'], fold=config['train_params']['fold']) 
-            model = get_model(args.netname, config)
-            callbacks = create_callbacks(netname, config['dumps'])
-            model_trainer = Trainer(model, callbacks, data_loaders, **config['train_params'])
-            model_trainer.start()
-            
-            # PLOT TRAINING
-            losses = model_trainer.losses
-            dice_scores = model_trainer.dice_scores # overall dice
-            iou_scores = model_trainer.iou_scores
+        # PLOT TRAINING
+        losses = model_trainer.losses
+        dice_scores = model_trainer.dice_scores # overall dice
+        iou_scores = model_trainer.iou_scores
 
-            def plot(scores, name=args.netname, is_save=True):
-                plt.figure(figsize=(15,5))
-                plt.plot(range(len(scores["train"])), scores["train"], label=f'train {name}')
-                plt.plot(range(len(scores["train"])), scores["val"], label=f'val {name}')
-                plt.title(f'{name} plot'); plt.xlabel('Epoch'); plt.ylabel(f'{name}')
-                plt.legend()
-                # plt.show()
-                if is_save:
-                    plt.savefig(os.path.join(log_save_dir, name+'.png'))
+        def plot(scores, name=args.netname, is_save=True):
+            plt.figure(figsize=(15,5))
+            plt.plot(range(len(scores["train"])), scores["train"], label=f'train {name}')
+            plt.plot(range(len(scores["train"])), scores["val"], label=f'val {name}')
+            plt.title(f'{name} plot'); plt.xlabel('Epoch'); plt.ylabel(f'{name}')
+            plt.legend()
 
-            plot(losses, "Loss")
-            plot(dice_scores, "Dice score")
-            plot(iou_scores, "IoU score")
+            if is_save:
+                plt.savefig(os.path.join(log_save_dir, name+'.png'))
+
+        plot(losses, "Loss")
+        plot(dice_scores, "Dice score")
+        plot(iou_scores, "IoU score")
 
 
 

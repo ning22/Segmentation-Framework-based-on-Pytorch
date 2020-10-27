@@ -1,21 +1,28 @@
+"""
+Author: Ningning Zhao
+Email: buaazhaonn@gmail.com
+"""
+import argparse, os, torch
 from collections import defaultdict
 from glob import glob
-import argparse, os, torch
 from tqdm import tqdm
+
 from src.utils import get_config
 from src.inference import PytorchInference
 
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data_path', type='/home/nzhao/Documents/PJ_Pelvis/main/data/hiatus')
-    parser.add_argument('--output_path', type='/home/nzhao/Documents/PJ_Pelvis/main/data/hiatus_output')
-    parser.add_argument('--batch_size', type='/home/nzhao/Documents/PJ_Pelvis/main/data/hiatus_output')
-    parser.add_argument('--num_workers', type='/home/nzhao/Documents/PJ_Pelvis/main/data/hiatus_output')
+    parser.add_argument('--data_path', type=str, default='location of your data')
+    parser.add_argument('--output_path', type=str, default='location of your output')
+    parser.add_argument('--batch_size', type=int, default=1)
+    parser.add_argument('--num_workers', type=int, default=2)
     return parser.parse_args()
+
 
 def collect_weight_paths(path, fold):
     return sorted(glob(os.path.join(path, f'fold{fold}', '*.pth')))
+
 
 def main():
     args = parse_args()

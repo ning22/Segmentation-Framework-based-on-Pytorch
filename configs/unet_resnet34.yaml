@@ -17,19 +17,7 @@ train_params:
     lr: 1e-3
 
 data_params:
-    data_folder: /home/nzhao/Documents/PJ_Pelvis/main/data/hiatus
+    data_folder: xxx
     batch_size: *batch_size 
     num_workers: *num_workers
 
-
-# stages:
-#     cosine:
-#         optimizer: Adam
-#         optimizer_params:
-#             lr: 0.000075
-#             weight_decay: 0.00001
-#         scheduler: CosineAnnealingLR
-#         scheduler_params:
-#             T_max: 8
-#             eta_min: 0.000001
-#         epochs: *epochs
